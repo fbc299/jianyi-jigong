@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import '../../providers/work_provider.dart';
 import '../../providers/salary_provider.dart';
 import '../../utils/format_utils.dart';
@@ -16,11 +17,18 @@ class _HomeScreenState extends State<HomeScreen> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
+  bool _localeReady = false;
 
   @override
   void initState() {
     super.initState();
+    _initLocale();
     _loadData();
+  }
+
+  Future<void> _initLocale() async {
+    await initializeDateFormatting('zh_CN');
+    if (mounted) setState(() => _localeReady = true);
   }
 
   void _loadData() {
@@ -34,12 +42,12 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('简约记工'),
+        title: const Text('\u7b80\u7ea6\u8bb0\u5de5'),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () => Navigator.pushNamed(context, '/work/form'),
-            tooltip: '记工',
+            tooltip: '\u8bb0\u5de5',
           ),
         ],
       ),
@@ -47,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onRefresh: () async => _loadData(),
         child: ListView(
           children: [
-            _buildCalendar(),
+            if (_localeReady) _buildCalendar() else const SizedBox(height: 300, child: Center(child: CircularProgressIndicator())),
             const Divider(),
             _buildSalaryOverview(),
             const Divider(),
@@ -84,14 +92,14 @@ class _HomeScreenState extends State<HomeScreen> {
           },
           calendarStyle: CalendarStyle(
             todayDecoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
               shape: BoxShape.circle,
             ),
             selectedDecoration: BoxDecoration(
               color: Theme.of(context).colorScheme.primary,
               shape: BoxShape.circle,
             ),
-            markerDecoration: BoxDecoration(
+            markerDecoration: const BoxDecoration(
               color: Colors.orange,
               shape: BoxShape.circle,
             ),
@@ -132,13 +140,13 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('💰 本月工资概览', style: Theme.of(context).textTheme.titleMedium),
+                Text('\ud83d\udcb0 \u672c\u6708\u5de5\u8d44\u6982\u89c8', style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 12),
-                _buildSalaryRow('总工资', provider.totalSalary),
-                _buildSalaryRow('已发放', provider.paidSalary),
-                _buildSalaryRow('借支', provider.advanceSalary),
+                _buildSalaryRow('\u603b\u5de5\u8d44', provider.totalSalary),
+                _buildSalaryRow('\u5df2\u53d1\u653e', provider.paidSalary),
+                _buildSalaryRow('\u501f\u652f', provider.advanceSalary),
                 const Divider(),
-                _buildSalaryRow('待结算', provider.pendingSettle, isHighlight: true),
+                _buildSalaryRow('\u5f85\u7ed3\u7b97', provider.pendingSettle, isHighlight: true),
               ],
             ),
           ),
@@ -180,27 +188,27 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('📋 今日记录', style: Theme.of(context).textTheme.titleMedium),
+                Text('\ud83d\udccb \u4eca\u65e5\u8bb0\u5f55', style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 8),
                 if (provider.todayRecords.isEmpty)
                   const Padding(
                     padding: EdgeInsets.all(16),
-                    child: Center(child: Text('今天还没有记工', style: TextStyle(color: Colors.grey))),
+                    child: Center(child: Text('\u4eca\u5929\u8fd8\u6ca1\u6709\u8bb0\u5de5', style: TextStyle(color: Colors.grey))),
                   )
                 else
                   ...provider.todayRecords.map((r) => ListTile(
                     dense: true,
                     leading: Icon(_getTypeIcon(r.type), size: 20),
                     title: Text(_getTypeName(r.type)),
-                    subtitle: Text('${r.days ?? 0}天 ${r.hours ?? 0}小时'),
-                    trailing: Text(FormatUtils.formatMoney(r.totalAmount ?? 0),
+                    subtitle: Text('\${r.days ?? 0}\u5929 \${r.hours ?? 0}\u5c0f\u65f6'),
+                    trailing: Text(FormatUtils.formatMoney(r.totalAmount),
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                   )),
                 const Divider(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('今日合计', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text('\u4eca\u65e5\u5408\u8ba1', style: TextStyle(fontWeight: FontWeight.bold)),
                     Text(FormatUtils.formatMoney(provider.todayTotal),
                         style: TextStyle(
                           fontSize: 16,
@@ -230,11 +238,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String _getTypeName(String type) {
     switch (type) {
-      case 'point_day': return '点工（按天）';
-      case 'point_hour': return '点工（按小时）';
-      case 'package_day': return '包工（按天）';
-      case 'package_quantity': return '包工（按量）';
-      case 'overtime': return '加班';
+      case 'point_day': return '\u70b9\u5de5\uff08\u6309\u5929\uff09';
+      case 'point_hour': return '\u70b9\u5de5\uff08\u6309\u5c0f\u65f6\uff09';
+      case 'package_day': return '\u5305\u5de5\uff08\u6309\u5929\uff09';
+      case 'package_quantity': return '\u5305\u5de5\uff08\u6309\u91cf\uff09';
+      case 'overtime': return '\u52a0\u73ed';
       default: return type;
     }
   }
