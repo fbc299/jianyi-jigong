@@ -47,7 +47,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                 margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 child: ListTile(
                   leading: CircleAvatar(
-                    backgroundColor: p.status == 'active' ? Colors.green.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.1),
+                    backgroundColor: p.status == 'active' ? Colors.green.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
                     child: Icon(Icons.folder, color: p.status == 'active' ? Colors.green : Colors.grey),
                   ),
                   title: Text(p.name, style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -58,7 +58,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: p.status == 'active' ? Colors.green.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.1),
+                          color: p.status == 'active' ? Colors.green.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
