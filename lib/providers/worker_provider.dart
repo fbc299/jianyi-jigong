@@ -32,4 +32,13 @@ class WorkerProvider extends ChangeNotifier {
     await _dao.delete(id);
     await loadAll();
   }
+
+  Worker? getWorkerById(int? id) {
+    if (id == null) return null;
+    try {
+      return _workers.firstWhere((w) => w.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
 }

@@ -12,7 +12,12 @@ class ProjectDao {
 
   Future<int> update(Project project) async {
     final db = await _dbHelper.database;
-    return await db.update('projects', project.toMap(), where: 'id = ?', whereArgs: [project.id]);
+    return await db.update(
+      'projects',
+      project.toMap(),
+      where: 'id = ?',
+      whereArgs: [project.id],
+    );
   }
 
   Future<int> delete(int id) async {
@@ -28,7 +33,12 @@ class ProjectDao {
 
   Future<List<Project>> getActive() async {
     final db = await _dbHelper.database;
-    final maps = await db.query('projects', where: "status = 'active'", orderBy: 'created_at DESC');
+    final maps = await db.query(
+      'projects',
+      where: 'status = ?',
+      whereArgs: ['active'],
+      orderBy: 'created_at DESC',
+    );
     return maps.map((m) => Project.fromMap(m)).toList();
   }
 

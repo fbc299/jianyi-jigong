@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:intl/date_symbol_data_local.dart';
 import '../../providers/work_provider.dart';
 import '../../providers/salary_provider.dart';
+import '../../providers/project_provider.dart';
+import '../../providers/worker_provider.dart';
 import '../../utils/format_utils.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -17,18 +18,11 @@ class _HomeScreenState extends State<HomeScreen> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
-  bool _localeReady = false;
 
   @override
   void initState() {
     super.initState();
-    _initLocale();
     _loadData();
-  }
-
-  Future<void> _initLocale() async {
-    await initializeDateFormatting('zh_CN');
-    if (mounted) setState(() => _localeReady = true);
   }
 
   void _loadData() {
@@ -36,18 +30,25 @@ class _HomeScreenState extends State<HomeScreen> {
     context.read<WorkProvider>().loadMonthRecords(now.year, now.month);
     context.read<WorkProvider>().loadTodayRecords();
     context.read<SalaryProvider>().loadMonthRecords(now.year, now.month);
+    context.read<ProjectProvider>().loadAll();
+    context.read<WorkerProvider>().loadAll();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('\u7b80\u7ea6\u8bb0\u5de5'),
+        title: const Text('简约记工'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.group_add),
+            tooltip: '批量记工',
+            onPressed: () => Navigator.pushNamed(context, '/work/batch'),
+          ),
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () => Navigator.pushNamed(context, '/work/form'),
-            tooltip: '\u8bb0\u5de5',
+            tooltip: '记工',
           ),
         ],
       ),
@@ -55,7 +56,9 @@ class _HomeScreenState extends State<HomeScreen> {
         onRefresh: () async => _loadData(),
         child: ListView(
           children: [
-            if (_localeReady) _buildCalendar() else const SizedBox(height: 300, child: Center(child: CircularProgressIndicator())),
+            _buildCalendar(),
+            const Divider(),
+            _buildQuickActions(),
             const Divider(),
             _buildSalaryOverview(),
             const Divider(),
@@ -130,6 +133,39 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildQuickActions() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      child: Row(
+        children: [
+          _buildQuickButton(Icons.work, '记工', () => Navigator.pushNamed(context, '/work/form')),
+          _buildQuickButton(Icons.group_add, '批量记', () => Navigator.pushNamed(context, '/work/batch')),
+          _buildQuickButton(Icons.attach_money, '记工资', () => Navigator.pushNamed(context, '/salary/form')),
+          _buildQuickButton(Icons.bar_chart, '统计', () => Navigator.pushNamed(context, '/stats')),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickButton(IconData icon, String label, VoidCallback onTap) {
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Column(
+            children: [
+              Icon(icon, color: Theme.of(context).colorScheme.primary, size: 24),
+              const SizedBox(height: 4),
+              Text(label, style: const TextStyle(fontSize: 12)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildSalaryOverview() {
     return Consumer<SalaryProvider>(
       builder: (context, provider, _) {
@@ -140,13 +176,22 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('\ud83d\udcb0 \u672c\u6708\u5de5\u8d44\u6982\u89c8', style: Theme.of(context).textTheme.titleMedium),
+                Row(
+                  children: [
+                    const Text('💰 本月工资概览', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    const Spacer(),
+                    TextButton(
+                      onPressed: () => Navigator.pushNamed(context, '/salary/detail'),
+                      child: const Text('明细 >'),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 12),
-                _buildSalaryRow('\u603b\u5de5\u8d44', provider.totalSalary),
-                _buildSalaryRow('\u5df2\u53d1\u653e', provider.paidSalary),
-                _buildSalaryRow('\u501f\u652f', provider.advanceSalary),
+                _buildSalaryRow('总工资', provider.totalSalary),
+                _buildSalaryRow('已发放', provider.paidSalary),
+                _buildSalaryRow('借支', provider.advanceSalary),
                 const Divider(),
-                _buildSalaryRow('\u5f85\u7ed3\u7b97', provider.pendingSettle, isHighlight: true),
+                _buildSalaryRow('待结算', provider.pendingSettle, isHighlight: true),
               ],
             ),
           ),
@@ -188,35 +233,49 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('\ud83d\udccb \u4eca\u65e5\u8bb0\u5f55', style: Theme.of(context).textTheme.titleMedium),
+                const Text('📋 今日记录', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 if (provider.todayRecords.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Center(child: Text('\u4eca\u5929\u8fd8\u6ca1\u6709\u8bb0\u5de5', style: TextStyle(color: Colors.grey))),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          const Text('今天还没有记工', style: TextStyle(color: Colors.grey)),
+                          const SizedBox(height: 8),
+                          TextButton.icon(
+                            icon: const Icon(Icons.add, size: 16),
+                            label: const Text('立即记工'),
+                            onPressed: () => Navigator.pushNamed(context, '/work/form'),
+                          ),
+                        ],
+                      ),
+                    ),
                   )
                 else
                   ...provider.todayRecords.map((r) => ListTile(
                     dense: true,
                     leading: Icon(_getTypeIcon(r.type), size: 20),
                     title: Text(_getTypeName(r.type)),
-                    subtitle: Text('\${r.days ?? 0}\u5929 \${r.hours ?? 0}\u5c0f\u65f6'),
+                    subtitle: Text('\${r.days ?? 0}天 \${r.hours ?? 0}小时'),
                     trailing: Text(FormatUtils.formatMoney(r.totalAmount),
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                   )),
-                const Divider(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('\u4eca\u65e5\u5408\u8ba1', style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text(FormatUtils.formatMoney(provider.todayTotal),
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
-                        )),
-                  ],
-                ),
+                if (provider.todayRecords.isNotEmpty) ...[
+                  const Divider(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('今日合计', style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(FormatUtils.formatMoney(provider.todayTotal),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.primary,
+                          )),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
@@ -238,11 +297,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String _getTypeName(String type) {
     switch (type) {
-      case 'point_day': return '\u70b9\u5de5\uff08\u6309\u5929\uff09';
-      case 'point_hour': return '\u70b9\u5de5\uff08\u6309\u5c0f\u65f6\uff09';
-      case 'package_day': return '\u5305\u5de5\uff08\u6309\u5929\uff09';
-      case 'package_quantity': return '\u5305\u5de5\uff08\u6309\u91cf\uff09';
-      case 'overtime': return '\u52a0\u73ed';
+      case 'point_day': return '点工（按天）';
+      case 'point_hour': return '点工（按小时）';
+      case 'package_day': return '包工（按天）';
+      case 'package_quantity': return '包工（按量）';
+      case 'overtime': return '加班';
       default: return type;
     }
   }

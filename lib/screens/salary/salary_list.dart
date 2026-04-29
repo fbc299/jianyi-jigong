@@ -10,12 +10,12 @@ class SalaryListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('\u5de5\u8d44\u7ba1\u7406'),
+        title: const Text('工资管理'),
         actions: [
           TextButton.icon(
             icon: const Icon(Icons.table_chart),
-            label: const Text('\u660e\u7ec6\u8868'),
-            onPressed: () {},
+            label: const Text('明细表'),
+            onPressed: () => Navigator.pushNamed(context, '/salary/detail'),
           ),
         ],
       ),
@@ -23,6 +23,7 @@ class SalaryListScreen extends StatelessWidget {
         builder: (context, provider, _) {
           return Column(
             children: [
+              // Pending settlement card
               Card(
                 margin: const EdgeInsets.all(12),
                 color: Theme.of(context).colorScheme.primaryContainer,
@@ -30,7 +31,7 @@ class SalaryListScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
                   child: Column(
                     children: [
-                      const Text('\ud83d\udcb0 \u5f85\u7ed3\u7b97', style: TextStyle(fontSize: 14)),
+                      const Text('💰 待结算', style: TextStyle(fontSize: 14)),
                       const SizedBox(height: 8),
                       Text(
                         FormatUtils.formatMoney(provider.pendingSettle),
@@ -44,53 +45,90 @@ class SalaryListScreen extends StatelessWidget {
                   ),
                 ),
               ),
+
+              // Action buttons
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Row(
                   children: [
-                    Expanded(child: _buildActionButton(context, '\u8bb0\u5de5\u8d44', Icons.add_circle, Colors.blue, 'total')),
+                    Expanded(child: _buildActionButton(context, '记工资', Icons.add_circle, Colors.blue, 'total')),
                     const SizedBox(width: 8),
-                    Expanded(child: _buildActionButton(context, '\u8bb0\u501f\u652f', Icons.money_off, Colors.orange, 'advance')),
+                    Expanded(child: _buildActionButton(context, '记借支', Icons.money_off, Colors.orange, 'advance')),
                     const SizedBox(width: 8),
-                    Expanded(child: _buildActionButton(context, '\u8bb0\u7ed3\u7b97', Icons.check_circle, Colors.green, 'settle')),
+                    Expanded(child: _buildActionButton(context, '记结算', Icons.check_circle, Colors.green, 'settle')),
                   ],
                 ),
               ),
               const SizedBox(height: 8),
+
+              // Records list
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Row(
                   children: [
-                    const Text('\ud83d\udccb \u6700\u8fd1\u8bb0\u5f55', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                    const Text('📋 最近记录', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                     const Spacer(),
-                    Text('\${provider.records.length}\u6761', style: const TextStyle(color: Colors.grey)),
+                    Text('\${provider.records.length}条', style: const TextStyle(color: Colors.grey)),
                   ],
                 ),
               ),
               Expanded(
                 child: provider.records.isEmpty
-                    ? const Center(child: Text('\u6682\u65e0\u8bb0\u5f55', style: TextStyle(color: Colors.grey)))
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.account_balance_wallet_outlined, size: 64, color: Colors.grey[400]),
+                            const SizedBox(height: 16),
+                            const Text('暂无工资记录', style: TextStyle(color: Colors.grey, fontSize: 16)),
+                            const SizedBox(height: 8),
+                            const Text('点击上方按钮开始记录', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                          ],
+                        ),
+                      )
                     : ListView.builder(
                         itemCount: provider.records.length,
                         itemBuilder: (context, index) {
                           final r = provider.records[index];
-                          final isIncome = r.type == 'total';
-                          final prefix = isIncome ? '+' : '-';
-                          return ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: _getTypeColor(r.type).withOpacity(0.1),
-                              child: Icon(_getTypeIcon(r.type), color: _getTypeColor(r.type), size: 20),
+                          return Dismissible(
+                            key: Key('salary_\${r.id}'),
+                            background: Container(
+                              color: Colors.red,
+                              alignment: Alignment.centerRight,
+                              padding: const EdgeInsets.only(right: 16),
+                              child: const Icon(Icons.delete, color: Colors.white),
                             ),
-                            title: Text(_getTypeName(r.type)),
-                            subtitle: Text('\${r.date} \${r.remark ?? ""}'),
-                            trailing: Text(
-                              '\$prefix\${FormatUtils.formatMoney(r.amount)}',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: isIncome ? Colors.green : Colors.red,
+                            direction: DismissDirection.endToStart,
+                            confirmDismiss: (direction) async {
+                              return await showDialog(
+                                context: context,
+                                builder: (ctx) => AlertDialog(
+                                  title: const Text('删除记录'),
+                                  content: const Text('确定删除这条记录吗？'),
+                                  actions: [
+                                    TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('取消')),
+                                    TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('删除', style: TextStyle(color: Colors.red))),
+                                  ],
+                                ),
+                              );
+                            },
+                            onDismissed: (_) => provider.deleteRecord(r.id!),
+                            child: ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: _getTypeColor(r.type).withOpacity(0.1),
+                                child: Icon(_getTypeIcon(r.type), color: _getTypeColor(r.type), size: 20),
                               ),
+                              title: Text(_getTypeName(r.type)),
+                              subtitle: Text('\${r.date} \${r.remark ?? ''}'),
+                              trailing: Text(
+                                '\${r.type == 'total' ? '+' : '-'}\${FormatUtils.formatMoney(r.amount)}',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: r.type == 'total' ? Colors.green : Colors.red,
+                                ),
+                              ),
+                              onTap: () => Navigator.pushNamed(context, '/salary/form', arguments: r),
                             ),
-                            onTap: () => Navigator.pushNamed(context, '/salary/form', arguments: r),
                           );
                         },
                       ),
@@ -102,7 +140,7 @@ class SalaryListScreen extends StatelessWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Navigator.pushNamed(context, '/salary/form'),
         icon: const Icon(Icons.add),
-        label: const Text('\u8bb0\u5de5\u8d44'),
+        label: const Text('记工资'),
       ),
     );
   }
@@ -137,10 +175,10 @@ class SalaryListScreen extends StatelessWidget {
 
   String _getTypeName(String type) {
     switch (type) {
-      case 'total': return '\u603b\u5de5\u8d44';
-      case 'paid': return '\u5df2\u53d1\u653e';
-      case 'advance': return '\u501f\u652f/\u9884\u652f';
-      case 'settle': return '\u7ed3\u7b97';
+      case 'total': return '总工资';
+      case 'paid': return '已发放';
+      case 'advance': return '借支/预支';
+      case 'settle': return '结算';
       default: return type;
     }
   }

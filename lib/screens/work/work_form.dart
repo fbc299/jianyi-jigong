@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/work_record.dart';
 import '../../providers/work_provider.dart';
+import '../../providers/project_provider.dart';
+import '../../providers/worker_provider.dart';
+import '../../utils/format_utils.dart';
 
 class WorkFormScreen extends StatefulWidget {
   const WorkFormScreen({super.key});
@@ -12,14 +15,15 @@ class WorkFormScreen extends StatefulWidget {
 
 class _WorkFormScreenState extends State<WorkFormScreen> {
   final _formKey = GlobalKey<FormState>();
-  String _type = 'point_day';
-  DateTime _date = DateTime.now();
-  final _daysController = TextEditingController(text: '1');
+  final _daysController = TextEditingController();
   final _hoursController = TextEditingController();
   final _quantityController = TextEditingController();
-  final _unitPriceController = TextEditingController();
+  final _unitPriceController = TextEditingController(text: '350');
   final _remarkController = TextEditingController();
-
+  String _type = 'point_day';
+  DateTime _date = DateTime.now();
+  int? _selectedProjectId;
+  int? _selectedWorkerId;
   WorkRecord? _editRecord;
 
   @override
@@ -35,7 +39,12 @@ class _WorkFormScreenState extends State<WorkFormScreen> {
       _quantityController.text = args.quantity?.toString() ?? '';
       _unitPriceController.text = args.unitPrice?.toString() ?? '';
       _remarkController.text = args.remark ?? '';
+      _selectedProjectId = args.projectId;
+      _selectedWorkerId = args.workerId;
     }
+    // Load projects and workers
+    context.read<ProjectProvider>().loadAll();
+    context.read<WorkerProvider>().loadAll();
   }
 
   @override
@@ -49,22 +58,17 @@ class _WorkFormScreenState extends State<WorkFormScreen> {
   }
 
   double get _calculatedAmount {
-    final days = double.tryParse(_daysController.text) ?? 0;
-    final hours = double.tryParse(_hoursController.text) ?? 0;
-    final quantity = double.tryParse(_quantityController.text) ?? 0;
     final unitPrice = double.tryParse(_unitPriceController.text) ?? 0;
-
     switch (_type) {
       case 'point_day':
-        return days * unitPrice;
-      case 'point_hour':
-        return hours * unitPrice;
       case 'package_day':
-        return days * unitPrice;
+        return (double.tryParse(_daysController.text) ?? 0) * unitPrice;
+      case 'point_hour':
+        return (double.tryParse(_hoursController.text) ?? 0) * unitPrice;
       case 'package_quantity':
-        return quantity * unitPrice;
+        return (double.tryParse(_quantityController.text) ?? 0) * unitPrice;
       case 'overtime':
-        return hours * unitPrice;
+        return (double.tryParse(_hoursController.text) ?? 0) * unitPrice;
       default:
         return 0;
     }
@@ -73,19 +77,166 @@ class _WorkFormScreenState extends State<WorkFormScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_editRecord != null ? '编辑记录' : '记工'),
-      ),
+      appBar: AppBar(title: Text(_editRecord != null ? '编辑记录' : '记工')),
       body: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            // Work type
+            const Text('工种类型', style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              children: [
+                _buildTypeChip('点工(按天)', 'point_day'),
+                _buildTypeChip('点工(按小时)', 'point_hour'),
+                _buildTypeChip('包工(按天)', 'package_day'),
+                _buildTypeChip('包工(按量)', 'package_quantity'),
+                _buildTypeChip('加班', 'overtime'),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Project selection
+            Consumer<ProjectProvider>(
+              builder: (context, provider, _) {
+                if (provider.projects.isEmpty) return const SizedBox.shrink();
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('所属项目', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<int>(
+                      value: _selectedProjectId,
+                      decoration: const InputDecoration(border: OutlineInputBorder()),
+                      hint: const Text('选择项目（可选）'),
+                      items: [
+                        const DropdownMenuItem<int>(value: null, child: Text('无')),
+                        ...provider.projects.map((p) => DropdownMenuItem(
+                          value: p.id,
+                          child: Text(p.name),
+                        )),
+                      ],
+                      onChanged: (val) => setState(() => _selectedProjectId = val),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                );
+              },
+            ),
+
+            // Worker selection
+            Consumer<WorkerProvider>(
+              builder: (context, provider, _) {
+                if (provider.workers.isEmpty) return const SizedBox.shrink();
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('工人', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<int>(
+                      value: _selectedWorkerId,
+                      decoration: const InputDecoration(border: OutlineInputBorder()),
+                      hint: const Text('选择工人（可选）'),
+                      items: [
+                        const DropdownMenuItem<int>(value: null, child: Text('无')),
+                        ...provider.workers.map((w) => DropdownMenuItem(
+                          value: w.id,
+                          child: Text(w.name),
+                        )),
+                      ],
+                      onChanged: (val) => setState(() => _selectedWorkerId = val),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                );
+              },
+            ),
+
+            // Days/Hours/Quantity based on type
+            if (_type == 'point_day' || _type == 'package_day') ...[
+              TextFormField(
+                controller: _daysController,
+                decoration: const InputDecoration(
+                  labelText: '天数',
+                  border: OutlineInputBorder(),
+                  hintText: '例：1',
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (_) => setState(() {}),
+                validator: (v) {
+                  if (v == null || v.isEmpty) return '请输入天数';
+                  if (double.tryParse(v) == null) return '请输入有效数字';
+                  return null;
+                },
+              ),
+              const SizedBox(height: 12),
+            ],
+
+            if (_type == 'point_hour' || _type == 'overtime') ...[
+              TextFormField(
+                controller: _hoursController,
+                decoration: const InputDecoration(
+                  labelText: '小时数',
+                  border: OutlineInputBorder(),
+                  hintText: '例：8',
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (_) => setState(() {}),
+                validator: (v) {
+                  if (v == null || v.isEmpty) return '请输入小时数';
+                  if (double.tryParse(v) == null) return '请输入有效数字';
+                  return null;
+                },
+              ),
+              const SizedBox(height: 12),
+            ],
+
+            if (_type == 'package_quantity') ...[
+              TextFormField(
+                controller: _quantityController,
+                decoration: const InputDecoration(
+                  labelText: '数量',
+                  border: OutlineInputBorder(),
+                  hintText: '例：100',
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (_) => setState(() {}),
+                validator: (v) {
+                  if (v == null || v.isEmpty) return '请输入数量';
+                  if (double.tryParse(v) == null) return '请输入有效数字';
+                  return null;
+                },
+              ),
+              const SizedBox(height: 12),
+            ],
+
+            // Unit price
+            TextFormField(
+              controller: _unitPriceController,
+              decoration: const InputDecoration(
+                labelText: '单价（元）',
+                border: OutlineInputBorder(),
+                prefixText: '¥ ',
+              ),
+              keyboardType: TextInputType.number,
+              onChanged: (_) => setState(() {}),
+              validator: (v) {
+                if (v == null || v.isEmpty) return '请输入单价';
+                if (double.tryParse(v) == null) return '请输入有效数字';
+                return null;
+              },
+            ),
+            const SizedBox(height: 12),
+
             // Date picker
             ListTile(
               leading: const Icon(Icons.calendar_today),
               title: const Text('日期'),
-              subtitle: Text('${_date.year}-${_date.month.toString().padLeft(2, '0')}-${_date.day.toString().padLeft(2, '0')}'),
+              subtitle: Text(
+                '${_date.year}-${_date.month.toString().padLeft(2, '0')}-${_date.day.toString().padLeft(2, '0')}',
+              ),
               onTap: () async {
                 final picked = await showDatePicker(
                   context: context,
@@ -96,65 +247,16 @@ class _WorkFormScreenState extends State<WorkFormScreen> {
                 if (picked != null) setState(() => _date = picked);
               },
             ),
-            const SizedBox(height: 16),
 
-            // Type selector
-            const Text('记工类型', style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              children: [
-                _buildTypeChip('点工（按天）', 'point_day'),
-                _buildTypeChip('点工（按小时）', 'point_hour'),
-                _buildTypeChip('包工（按天）', 'package_day'),
-                _buildTypeChip('包工（按量）', 'package_quantity'),
-                _buildTypeChip('加班', 'overtime'),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // Conditional fields
-            if (_type.contains('day'))
-              TextFormField(
-                controller: _daysController,
-                decoration: const InputDecoration(labelText: '工天', border: OutlineInputBorder()),
-                keyboardType: TextInputType.number,
-                onChanged: (_) => setState(() {}),
-              ),
-            if (_type.contains('hour') || _type == 'overtime') ...[
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _hoursController,
-                decoration: const InputDecoration(labelText: '工时（小时）', border: OutlineInputBorder()),
-                keyboardType: TextInputType.number,
-                onChanged: (_) => setState(() {}),
-              ),
-            ],
-            if (_type == 'package_quantity') ...[
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _quantityController,
-                decoration: const InputDecoration(labelText: '工作量', border: OutlineInputBorder()),
-                keyboardType: TextInputType.number,
-                onChanged: (_) => setState(() {}),
-              ),
-            ],
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _unitPriceController,
-              decoration: const InputDecoration(labelText: '单价（元）', border: OutlineInputBorder()),
-              keyboardType: TextInputType.number,
-              onChanged: (_) => setState(() {}),
-            ),
-            const SizedBox(height: 12),
+            // Remark
             TextFormField(
               controller: _remarkController,
               decoration: const InputDecoration(labelText: '备注（选填）', border: OutlineInputBorder()),
               maxLines: 2,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
 
-            // Amount preview
+            // Preview
             Card(
               color: Theme.of(context).colorScheme.primaryContainer,
               child: Padding(
@@ -162,9 +264,9 @@ class _WorkFormScreenState extends State<WorkFormScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('预估金额', style: TextStyle(fontSize: 16)),
+                    const Text('预计金额', style: TextStyle(fontSize: 16)),
                     Text(
-                      '¥${_calculatedAmount.toStringAsFixed(2)}',
+                      FormatUtils.formatMoney(_calculatedAmount),
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -177,14 +279,11 @@ class _WorkFormScreenState extends State<WorkFormScreen> {
             ),
             const SizedBox(height: 24),
 
-            // Submit button
             FilledButton.icon(
               onPressed: _submit,
               icon: const Icon(Icons.save),
-              label: Text(_editRecord != null ? '保存修改' : '保存记录'),
-              style: FilledButton.styleFrom(
-                minimumSize: const Size(double.infinity, 50),
-              ),
+              label: Text(_editRecord != null ? '保存修改' : '保存'),
+              style: FilledButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
             ),
           ],
         ),
@@ -212,6 +311,8 @@ class _WorkFormScreenState extends State<WorkFormScreen> {
         quantity: double.tryParse(_quantityController.text),
         unitPrice: double.tryParse(_unitPriceController.text),
         totalAmount: _calculatedAmount,
+        projectId: _selectedProjectId,
+        workerId: _selectedWorkerId,
         remark: _remarkController.text.isEmpty ? null : _remarkController.text,
         createdAt: _editRecord?.createdAt ?? now,
         updatedAt: now,

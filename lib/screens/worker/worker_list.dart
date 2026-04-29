@@ -1,26 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/worker_provider.dart';
+import '../../models/worker.dart';
 import '../../utils/format_utils.dart';
 
-class WorkerListScreen extends StatefulWidget {
+class WorkerListScreen extends StatelessWidget {
   const WorkerListScreen({super.key});
-
-  @override
-  State<WorkerListScreen> createState() => _WorkerListScreenState();
-}
-
-class _WorkerListScreenState extends State<WorkerListScreen> {
-  @override
-  void initState() {
-    super.initState();
-    context.read<WorkerProvider>().loadAll();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('\u5de5\u4eba\u7ba1\u7406')),
+      appBar: AppBar(title: const Text('工人管理')),
       body: Consumer<WorkerProvider>(
         builder: (context, provider, _) {
           if (provider.isLoading) {
@@ -33,9 +23,9 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
                 children: [
                   Icon(Icons.people_outline, size: 64, color: Colors.grey[400]),
                   const SizedBox(height: 16),
-                  const Text('\u8fd8\u6ca1\u6709\u5de5\u4eba', style: TextStyle(color: Colors.grey, fontSize: 16)),
+                  const Text('还没有工人', style: TextStyle(color: Colors.grey, fontSize: 16)),
                   const SizedBox(height: 8),
-                  const Text('\u70b9\u51fb\u53f3\u4e0b\u89d2\u6dfb\u52a0', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                  const Text('点击右下角添加工人信息', style: TextStyle(color: Colors.grey, fontSize: 13)),
                 ],
               ),
             );
@@ -43,24 +33,43 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
           return ListView.builder(
             itemCount: provider.workers.length,
             itemBuilder: (context, index) {
-              final w = provider.workers[index];
+              final worker = provider.workers[index];
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 child: ListTile(
                   leading: CircleAvatar(
                     backgroundColor: Colors.blue.withOpacity(0.1),
-                    child: const Icon(Icons.person, color: Colors.blue),
+                    child: Text(
+                      worker.name.isNotEmpty ? worker.name[0] : '?',
+                      style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+                    ),
                   ),
-                  title: Text(w.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text(
-                    [w.skill ?? '', w.dailyRate != null ? '\u65e5\u85aa: \${FormatUtils.formatMoney(w.dailyRate!)}' : ''].where((s) => s.isNotEmpty).join(' | '),
-                    style: const TextStyle(fontSize: 12),
+                  title: Text(worker.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (worker.phone?.isNotEmpty == true)
+                        Text('📱 \${worker.phone}', style: const TextStyle(fontSize: 12)),
+                      if (worker.skill?.isNotEmpty == true)
+                        Text('🔧 \${worker.skill}', style: const TextStyle(fontSize: 12)),
+                      if (worker.dailyRate != null && worker.dailyRate! > 0)
+                        Text('💰 日薪: \${FormatUtils.formatMoney(worker.dailyRate!)}', style: const TextStyle(fontSize: 12)),
+                    ],
                   ),
-                  trailing: w.phone != null && w.phone!.isNotEmpty
-                      ? IconButton(icon: const Icon(Icons.phone, color: Colors.green), onPressed: () {})
-                      : null,
-                  onTap: () => Navigator.pushNamed(context, '/worker/form', arguments: w),
-                  onLongPress: () => _showDeleteDialog(context, provider, w.id!, w.name),
+                  trailing: PopupMenuButton(
+                    itemBuilder: (ctx) => [
+                      const PopupMenuItem(value: 'edit', child: Text('编辑')),
+                      const PopupMenuItem(value: 'delete', child: Text('删除')),
+                    ],
+                    onSelected: (value) {
+                      if (value == 'edit') {
+                        Navigator.pushNamed(context, '/worker/form', arguments: worker);
+                      } else if (value == 'delete') {
+                        _showDeleteDialog(context, provider, worker);
+                      }
+                    },
+                  ),
+                  onTap: () => Navigator.pushNamed(context, '/worker/form', arguments: worker),
                 ),
               );
             },
@@ -69,22 +78,25 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.pushNamed(context, '/worker/form'),
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.person_add),
       ),
     );
   }
 
-  void _showDeleteDialog(BuildContext context, WorkerProvider provider, int id, String name) {
+  void _showDeleteDialog(BuildContext context, WorkerProvider provider, Worker worker) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('\u5220\u9664\u5de5\u4eba'),
-        content: Text('\u786e\u5b9a\u5220\u9664\u201c$name\u201d\u5417\uff1f'),
+        title: const Text('删除工人'),
+        content: Text('确定删除「\${worker.name}」吗？'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('\u53d6\u6d88')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('取消')),
           TextButton(
-            onPressed: () { provider.deleteWorker(id); Navigator.pop(ctx); },
-            child: const Text('\u5220\u9664', style: TextStyle(color: Colors.red)),
+            onPressed: () {
+              provider.deleteWorker(worker.id!);
+              Navigator.pop(ctx);
+            },
+            child: const Text('删除', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),

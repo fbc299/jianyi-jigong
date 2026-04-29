@@ -1,6 +1,6 @@
 class AppConstants {
   static const String appName = '简约记工';
-  static const String appVersion = '1.0.0';
+  static const String appVersion = '2.0.0';
   static const String dbName = 'jianyi_jigong.db';
   static const int dbVersion = 1;
 
@@ -26,9 +26,9 @@ class AppConstants {
   static const String salaryTypeSettle = 'settle';
 
   static const Map<String, String> salaryTypeLabels = {
-    salaryTypeTotal: '总计',
-    salaryTypePaid: '已付',
-    salaryTypeAdvance: '预支',
+    salaryTypeTotal: '总工资',
+    salaryTypePaid: '已发放',
+    salaryTypeAdvance: '借支/预支',
     salaryTypeSettle: '结算',
   };
 }

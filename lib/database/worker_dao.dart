@@ -12,7 +12,12 @@ class WorkerDao {
 
   Future<int> update(Worker worker) async {
     final db = await _dbHelper.database;
-    return await db.update('workers', worker.toMap(), where: 'id = ?', whereArgs: [worker.id]);
+    return await db.update(
+      'workers',
+      worker.toMap(),
+      where: 'id = ?',
+      whereArgs: [worker.id],
+    );
   }
 
   Future<int> delete(int id) async {
@@ -22,7 +27,7 @@ class WorkerDao {
 
   Future<List<Worker>> getAll() async {
     final db = await _dbHelper.database;
-    final maps = await db.query('workers', orderBy: 'created_at DESC');
+    final maps = await db.query('workers', orderBy: 'name ASC');
     return maps.map((m) => Worker.fromMap(m)).toList();
   }
 
