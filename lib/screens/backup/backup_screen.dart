@@ -150,13 +150,13 @@ class _BackupScreenState extends State<BackupScreen> {
     try {
       final file = await ExportUtils.exportToJson();
       setState(() {
-        _lastAction = 'JSON 已导出: \${file.path}';
+        _lastAction = 'JSON 已导出: ${file.path}';
         _isExporting = false;
       });
       _showSnackBar('JSON 导出成功', Colors.green);
     } catch (e) {
       setState(() => _isExporting = false);
-      _showSnackBar('导出失败: \$e', Colors.red);
+      _showSnackBar('导出失败: $e', Colors.red);
     }
   }
 
@@ -165,13 +165,13 @@ class _BackupScreenState extends State<BackupScreen> {
     try {
       final file = await ExportUtils.exportWorkToCsv();
       setState(() {
-        _lastAction = '工时 CSV 已导出: \${file.path}';
+        _lastAction = '工时 CSV 已导出: ${file.path}';
         _isExporting = false;
       });
       _showSnackBar('工时 CSV 导出成功', Colors.green);
     } catch (e) {
       setState(() => _isExporting = false);
-      _showSnackBar('导出失败: \$e', Colors.red);
+      _showSnackBar('导出失败: $e', Colors.red);
     }
   }
 
@@ -180,13 +180,13 @@ class _BackupScreenState extends State<BackupScreen> {
     try {
       final file = await ExportUtils.exportSalaryToCsv();
       setState(() {
-        _lastAction = '工资 CSV 已导出: \${file.path}';
+        _lastAction = '工资 CSV 已导出: ${file.path}';
         _isExporting = false;
       });
       _showSnackBar('工资 CSV 导出成功', Colors.green);
     } catch (e) {
       setState(() => _isExporting = false);
-      _showSnackBar('导出失败: \$e', Colors.red);
+      _showSnackBar('导出失败: $e', Colors.red);
     }
   }
 

@@ -49,11 +49,11 @@ class WorkerListScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (worker.phone?.isNotEmpty == true)
-                        Text('📱 \${worker.phone}', style: const TextStyle(fontSize: 12)),
+                        Text('📱 ${worker.phone}', style: const TextStyle(fontSize: 12)),
                       if (worker.skill?.isNotEmpty == true)
-                        Text('🔧 \${worker.skill}', style: const TextStyle(fontSize: 12)),
+                        Text('🔧 ${worker.skill}', style: const TextStyle(fontSize: 12)),
                       if (worker.dailyRate != null && worker.dailyRate! > 0)
-                        Text('💰 日薪: \${FormatUtils.formatMoney(worker.dailyRate!)}', style: const TextStyle(fontSize: 12)),
+                        Text('💰 日薪: ${FormatUtils.formatMoney(worker.dailyRate!)}', style: const TextStyle(fontSize: 12)),
                     ],
                   ),
                   trailing: PopupMenuButton(
@@ -88,7 +88,7 @@ class WorkerListScreen extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('删除工人'),
-        content: Text('确定删除「\${worker.name}」吗？'),
+        content: Text('确定删除「${worker.name}」吗？'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('取消')),
           TextButton(

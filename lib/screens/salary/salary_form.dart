@@ -99,7 +99,7 @@ class _SalaryFormScreenState extends State<SalaryFormScreen> {
             ListTile(
               leading: const Icon(Icons.calendar_today),
               title: const Text('日期'),
-              subtitle: Text('${_date.year}-${_date.month.toString().padLeft(2, '0')}-${_date.day.toString().padLeft(2, '0')}'),
+              subtitle: Text("${_date.year}-${_date.month.toString().padLeft(2, '0')}-${_date.day.toString().padLeft(2, '0')}"),
               onTap: () async {
                 final picked = await showDatePicker(
                   context: context,

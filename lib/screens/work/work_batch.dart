@@ -122,7 +122,7 @@ class _WorkBatchScreenState extends State<WorkBatchScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '共 \${_dateRange.length} 天',
+                    '共 ${_dateRange.length} 天',
                     style: const TextStyle(color: Colors.grey, fontSize: 12),
                   ),
                 ],
@@ -249,7 +249,7 @@ class _WorkBatchScreenState extends State<WorkBatchScreen> {
       title: Text(worker.name),
       subtitle: Text(
         workerEntries.values.where((e) => e.selected).length > 0
-            ? '已选 \${workerEntries.values.where((e) => e.selected).length} 天'
+            ? '已选 ${workerEntries.values.where((e) => e.selected).length} 天'
             : '未选择',
         style: TextStyle(
           fontSize: 12,
@@ -269,7 +269,7 @@ class _WorkBatchScreenState extends State<WorkBatchScreen> {
               final isToday = AppDateUtils.isToday(date);
               return FilterChip(
                 label: Text(
-                  '\${date.month}/\${date.day}\${isToday ? '(今)' : ''}',
+                  "${date.month}/${date.day}${isToday ? '(今)' : ''}",
                   style: TextStyle(fontSize: 12, color: selected ? Colors.white : null),
                 ),
                 selected: selected,
@@ -308,7 +308,7 @@ class _WorkBatchScreenState extends State<WorkBatchScreen> {
           children: [
             Column(
               children: [
-                Text('\$totalEntries', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                Text('$totalEntries', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                 const Text('总工天', style: TextStyle(fontSize: 12)),
               ],
             ),
@@ -400,7 +400,7 @@ class _WorkBatchScreenState extends State<WorkBatchScreen> {
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('成功保存 \$count 条记录'), backgroundColor: Colors.green),
+      SnackBar(content: Text('成功保存 $count 条记录'), backgroundColor: Colors.green),
     );
     Navigator.pop(context);
   }

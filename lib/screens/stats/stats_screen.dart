@@ -75,7 +75,7 @@ class _StatsScreenState extends State<StatsScreen> {
             },
           ),
           Text(
-            '\$_selectedYear年\$_selectedMonth月',
+            '$_selectedYear年$_selectedMonth月',
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           IconButton(
@@ -111,8 +111,8 @@ class _StatsScreenState extends State<StatsScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _buildStatItem('工天', '\${provider.getMonthWorkDays()}', '天'),
-                    _buildStatItem('记录数', '\${provider.records.length}', '条'),
+                    _buildStatItem('工天', '${provider.getMonthWorkDays()}', '天'),
+                    _buildStatItem('记录数', '${provider.records.length}', '条'),
                     _buildStatItem('总金额', FormatUtils.formatMoney(provider.getMonthTotal()), ''),
                   ],
                 ),
@@ -162,7 +162,7 @@ class _StatsScreenState extends State<StatsScreen> {
     return Column(
       children: [
         Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-        Text('\$label\$unit', style: const TextStyle(color: Colors.grey, fontSize: 12)),
+        Text('$label$unit', style: const TextStyle(color: Colors.grey, fontSize: 12)),
       ],
     );
   }
@@ -224,7 +224,7 @@ class _StatsScreenState extends State<StatsScreen> {
                       sections: typeMap.entries.toList().asMap().entries.map((e) {
                         return PieChartSectionData(
                           value: e.value.value,
-                          title: '\${e.value.value.toStringAsFixed(0)}',
+                          title: '${e.value.value.toStringAsFixed(0)}',
                           color: colors[e.key % colors.length],
                           radius: 60,
                           titleStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),

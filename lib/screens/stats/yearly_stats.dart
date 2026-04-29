@@ -87,7 +87,7 @@ class _YearlyStatsScreenState extends State<YearlyStatsScreen> {
             },
           ),
           Center(
-            child: Text('\$_selectedYear', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            child: Text('$_selectedYear', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           ),
           IconButton(
             icon: const Icon(Icons.chevron_right),
@@ -110,12 +110,12 @@ class _YearlyStatsScreenState extends State<YearlyStatsScreen> {
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       children: [
-                        Text('\$_selectedYear年汇总', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        Text('$_selectedYear年汇总', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 16),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            _buildSummaryItem('总工天', '\$_yearWorkDays天'),
+                            _buildSummaryItem('总工天', '$_yearWorkDays天'),
                             _buildSummaryItem('总工钱', FormatUtils.formatMoney(_yearTotal)),
                           ],
                         ),
@@ -159,7 +159,7 @@ class _YearlyStatsScreenState extends State<YearlyStatsScreen> {
                                       touchTooltipData: BarTouchTooltipData(
                                         getTooltipItem: (group, groupIndex, rod, rodIndex) {
                                           return BarTooltipItem(
-                                            '\${group.x + 1}月\n\${FormatUtils.formatMoney(rod.toY)}',
+                                            '${group.x + 1}月\n${FormatUtils.formatMoney(rod.toY)}',
                                             const TextStyle(color: Colors.white, fontSize: 12),
                                           );
                                         },
@@ -173,7 +173,7 @@ class _YearlyStatsScreenState extends State<YearlyStatsScreen> {
                                           getTitlesWidget: (value, meta) {
                                             return Padding(
                                               padding: const EdgeInsets.only(top: 4),
-                                              child: Text('\${value.toInt() + 1}月', style: const TextStyle(fontSize: 10)),
+                                              child: Text('${value.toInt() + 1}月', style: const TextStyle(fontSize: 10)),
                                             );
                                           },
                                           reservedSize: 28,
@@ -185,7 +185,7 @@ class _YearlyStatsScreenState extends State<YearlyStatsScreen> {
                                           reservedSize: 50,
                                           getTitlesWidget: (value, meta) {
                                             return Text(
-                                              value >= 10000 ? '\${(value / 10000).toStringAsFixed(1)}万' : value.toInt().toString(),
+                                              value >= 10000 ? '${(value / 10000).toStringAsFixed(1)}万' : value.toInt().toString(),
                                               style: const TextStyle(fontSize: 10),
                                             );
                                           },
@@ -266,7 +266,7 @@ class _YearlyStatsScreenState extends State<YearlyStatsScreen> {
                                 children: [
                                   Padding(
                                     padding: const EdgeInsets.symmetric(vertical: 6),
-                                    child: Text('\$month月', style: const TextStyle(fontSize: 13)),
+                                    child: Text('$month月', style: const TextStyle(fontSize: 13)),
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(vertical: 6),

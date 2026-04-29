@@ -53,8 +53,8 @@ class ProjectListScreen extends StatelessWidget {
                       if (project.address?.isNotEmpty == true)
                         Text(project.address!, style: const TextStyle(fontSize: 12)),
                       Text(
-                        '${project.status == 'active' ? '进行中' : '已完工'}'
-                        '${project.startDate != null ? ' | \${project.startDate}' : ''}',
+                        "${project.status == 'active' ? '进行中' : '已完工'}"
+                        "${project.startDate != null ? ' | ${project.startDate}' : ''}",
                         style: TextStyle(
                           fontSize: 11,
                           color: project.status == 'active' ? Colors.green : Colors.grey,
@@ -94,7 +94,7 @@ class ProjectListScreen extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('删除项目'),
-        content: Text('确定删除「\${project.name}」吗？'),
+        content: Text('确定删除「${project.name}」吗？'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('取消')),
           TextButton(

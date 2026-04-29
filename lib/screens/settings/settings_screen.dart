@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../config/constants.dart';
+import '../../config/constants.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -31,7 +31,7 @@ class SettingsScreen extends StatelessWidget {
           ]),
           _buildSection(context, '关于', [
             _buildTile(context, Icons.info, '关于简约记工',
-                '版本 \${AppConstants.appVersion} | 无广告 · 单机运行 · 数据安全', () {
+                '版本 ${AppConstants.appVersion} | 无广告 · 单机运行 · 数据安全', () {
               showAboutDialog(
                 context: context,
                 applicationName: '简约记工',

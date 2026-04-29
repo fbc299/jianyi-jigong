@@ -71,7 +71,7 @@ class _SalaryDetailScreenState extends State<SalaryDetailScreen> {
                         },
                       ),
                       Text(
-                        '\$_selectedYear年\$_selectedMonth月',
+                        '$_selectedYear年$_selectedMonth月',
                         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       IconButton(
@@ -124,7 +124,7 @@ class _SalaryDetailScreenState extends State<SalaryDetailScreen> {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  '工钱(\${FormatUtils.formatMoney(workTotal)}) 与 工资(\${FormatUtils.formatMoney(salaryTotal)}) 差额: \${FormatUtils.formatMoney(workTotal - salaryTotal)}',
+                                  '工钱(${FormatUtils.formatMoney(workTotal)}) 与 工资(${FormatUtils.formatMoney(salaryTotal)}) 差额: ${FormatUtils.formatMoney(workTotal - salaryTotal)}',
                                   style: const TextStyle(fontSize: 12, color: Colors.blue),
                                 ),
                               ),
@@ -148,7 +148,7 @@ class _SalaryDetailScreenState extends State<SalaryDetailScreen> {
                         children: [
                           const Text('📋 工资记录明细', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                           const Spacer(),
-                          Text('\${salaryProvider.records.length}条', style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                          Text('${salaryProvider.records.length}条', style: const TextStyle(color: Colors.grey, fontSize: 12)),
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -167,9 +167,9 @@ class _SalaryDetailScreenState extends State<SalaryDetailScreen> {
                               child: Icon(_getTypeIcon(r.type), size: 16, color: _getTypeColor(r.type)),
                             ),
                             title: Text(_getTypeName(r.type), style: const TextStyle(fontSize: 14)),
-                            subtitle: Text('\${r.date}\${r.remark != null ? ' | \${r.remark}' : ''}', style: const TextStyle(fontSize: 11)),
+                            subtitle: Text("${r.date}${r.remark != null ? ' | ${r.remark}' : ''}", style: const TextStyle(fontSize: 11)),
                             trailing: Text(
-                              '\${r.type == 'total' ? '+' : '-'}\${FormatUtils.formatMoney(r.amount)}',
+                              "${r.type == 'total' ? '+' : '-'}${FormatUtils.formatMoney(r.amount)}",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: r.type == 'total' ? Colors.green : Colors.red,

@@ -22,9 +22,9 @@ class SalaryCard extends StatelessWidget {
           child: Icon(_getTypeIcon(), color: _getTypeColor(), size: 20),
         ),
         title: Text(_getTypeName()),
-        subtitle: Text('${record.date} ${record.remark ?? ''}'),
+        subtitle: Text("${record.date} ${record.remark ?? ''}"),
         trailing: Text(
-          '${record.type == 'total' ? '+' : '-'}${FormatUtils.formatMoney(record.amount)}',
+          "${record.type == 'total' ? '+' : '-'}${FormatUtils.formatMoney(record.amount)}",
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: record.type == 'total' ? Colors.green : Colors.red,

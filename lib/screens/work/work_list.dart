@@ -105,7 +105,7 @@ class _WorkListScreenState extends State<WorkListScreen> {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(date, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                                    Text('合计: \${FormatUtils.formatMoney(dayTotal)}',
+                                    Text('合计: ${FormatUtils.formatMoney(dayTotal)}',
                                         style: TextStyle(color: Theme.of(context).colorScheme.primary)),
                                   ],
                                 ),
@@ -137,8 +137,8 @@ class _WorkListScreenState extends State<WorkListScreen> {
                                       ],
                                     ),
                                     subtitle: Text(
-                                      '\${r.days ?? 0}天 \${r.hours ?? 0}小时 | 单价: \${FormatUtils.formatMoney(r.unitPrice ?? 0)}'
-                                      '\${projectName != null ? ' | \$projectName' : ''}',
+                                      "${r.days ?? 0}天 ${r.hours ?? 0}小时 | 单价: ${FormatUtils.formatMoney(r.unitPrice ?? 0)}"
+                                      "${projectName != null ? ' | $projectName' : ''}",
                                     ),
                                     trailing: Column(
                                       mainAxisAlignment: MainAxisAlignment.center,

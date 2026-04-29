@@ -77,7 +77,7 @@ class _ProjectFormScreenState extends State<ProjectFormScreen> {
                   child: ListTile(
                     title: const Text('开工日期'),
                     subtitle: Text(_startDate != null
-                        ? '\${_startDate!.year}-\${_startDate!.month.toString().padLeft(2, '0')}-\${_startDate!.day.toString().padLeft(2, '0')}'
+                        ? "${_startDate!.year}-${_startDate!.month.toString().padLeft(2, '0')}-${_startDate!.day.toString().padLeft(2, '0')}"
                         : '未设置'),
                     leading: const Icon(Icons.calendar_today),
                     onTap: () async {
@@ -95,7 +95,7 @@ class _ProjectFormScreenState extends State<ProjectFormScreen> {
                   child: ListTile(
                     title: const Text('完工日期'),
                     subtitle: Text(_endDate != null
-                        ? '\${_endDate!.year}-\${_endDate!.month.toString().padLeft(2, '0')}-\${_endDate!.day.toString().padLeft(2, '0')}'
+                        ? "${_endDate!.year}-${_endDate!.month.toString().padLeft(2, '0')}-${_endDate!.day.toString().padLeft(2, '0')}"
                         : '未设置'),
                     leading: const Icon(Icons.event),
                     onTap: () async {

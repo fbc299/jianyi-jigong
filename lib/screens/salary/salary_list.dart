@@ -68,7 +68,7 @@ class SalaryListScreen extends StatelessWidget {
                   children: [
                     const Text('📋 最近记录', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                     const Spacer(),
-                    Text('\${provider.records.length}条', style: const TextStyle(color: Colors.grey)),
+                    Text('${provider.records.length}条', style: const TextStyle(color: Colors.grey)),
                   ],
                 ),
               ),
@@ -91,7 +91,7 @@ class SalaryListScreen extends StatelessWidget {
                         itemBuilder: (context, index) {
                           final r = provider.records[index];
                           return Dismissible(
-                            key: Key('salary_\${r.id}'),
+                            key: Key('salary_${r.id}'),
                             background: Container(
                               color: Colors.red,
                               alignment: Alignment.centerRight,
@@ -119,9 +119,9 @@ class SalaryListScreen extends StatelessWidget {
                                 child: Icon(_getTypeIcon(r.type), color: _getTypeColor(r.type), size: 20),
                               ),
                               title: Text(_getTypeName(r.type)),
-                              subtitle: Text('\${r.date} \${r.remark ?? ''}'),
+                              subtitle: Text("${r.date} ${r.remark ?? ''}"),
                               trailing: Text(
-                                '\${r.type == 'total' ? '+' : '-'}\${FormatUtils.formatMoney(r.amount)}',
+                                "${r.type == 'total' ? '+' : '-'}${FormatUtils.formatMoney(r.amount)}",
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: r.type == 'total' ? Colors.green : Colors.red,

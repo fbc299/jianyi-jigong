@@ -27,7 +27,7 @@ class ExportUtils {
 
     final dir = await getApplicationDocumentsDirectory();
     final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final file = File('\${dir.path}/jianyi_backup_\$timestamp.json');
+    final file = File('${dir.path}/jianyi_backup_$timestamp.json');
     return file.writeAsString(json);
   }
 
@@ -38,15 +38,15 @@ class ExportUtils {
 
     for (final r in records) {
       buffer.writeln(
-        '\${r.date},\${_typeLabel(r.type)},\${r.days ?? 0},\${r.hours ?? 0},'
-        '\${r.quantity ?? 0},\${r.unitPrice ?? 0},\${r.totalAmount},'
-        '\${r.projectId ?? ''},\${r.workerId ?? ''},\${r.remark ?? ''}',
+        '${r.date},${_typeLabel(r.type)},${r.days ?? 0},${r.hours ?? 0},'
+        '${r.quantity ?? 0},${r.unitPrice ?? 0},${r.totalAmount},'
+        "${r.projectId ?? ''},${r.workerId ?? ''},${r.remark ?? ''}",
       );
     }
 
     final dir = await getApplicationDocumentsDirectory();
     final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final file = File('\${dir.path}/jianyi_work_\$timestamp.csv');
+    final file = File('${dir.path}/jianyi_work_$timestamp.csv');
     return file.writeAsString(buffer.toString());
   }
 
@@ -57,15 +57,15 @@ class ExportUtils {
 
     for (final r in records) {
       buffer.writeln(
-        '\${r.date},\${_salaryTypeLabel(r.type)},\${r.amount},'
-        '\${r.paymentMethod ?? ''},\${r.periodStart ?? ''},'
-        '\${r.periodEnd ?? ''},\${r.remark ?? ''}',
+        '${r.date},${_salaryTypeLabel(r.type)},${r.amount},'
+        "${r.paymentMethod ?? ''},${r.periodStart ?? ''},"
+        "${r.periodEnd ?? ''},${r.remark ?? ''}",
       );
     }
 
     final dir = await getApplicationDocumentsDirectory();
     final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final file = File('\${dir.path}/jianyi_salary_\$timestamp.csv');
+    final file = File('${dir.path}/jianyi_salary_$timestamp.csv');
     return file.writeAsString(buffer.toString());
   }
 

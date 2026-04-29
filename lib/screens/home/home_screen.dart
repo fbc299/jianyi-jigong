@@ -257,7 +257,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     dense: true,
                     leading: Icon(_getTypeIcon(r.type), size: 20),
                     title: Text(_getTypeName(r.type)),
-                    subtitle: Text('\${r.days ?? 0}天 \${r.hours ?? 0}小时'),
+                    subtitle: Text('${r.days ?? 0}天 ${r.hours ?? 0}小时'),
                     trailing: Text(FormatUtils.formatMoney(r.totalAmount),
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                   )),
