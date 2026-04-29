@@ -76,7 +76,7 @@ class _WorkListScreenState extends State<WorkListScreen> {
                                 margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                                 child: ListTile(
                                   leading: CircleAvatar(
-                                    backgroundColor: _getTypeColor(r.type).withValues(alpha: 0.1),
+                                    backgroundColor: _getTypeColor(r.type).withOpacity(0.1),
                                     child: Icon(_getTypeIcon(r.type), color: _getTypeColor(r.type), size: 20),
                                   ),
                                   title: Text(_getTypeName(r.type)),
