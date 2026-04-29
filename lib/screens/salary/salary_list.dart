@@ -74,18 +74,20 @@ class SalaryListScreen extends StatelessWidget {
                         itemCount: provider.records.length,
                         itemBuilder: (context, index) {
                           final r = provider.records[index];
+                          final isIncome = r.type == 'total';
+                          final prefix = isIncome ? '+' : '-';
                           return ListTile(
                             leading: CircleAvatar(
                               backgroundColor: _getTypeColor(r.type).withOpacity(0.1),
                               child: Icon(_getTypeIcon(r.type), color: _getTypeColor(r.type), size: 20),
                             ),
                             title: Text(_getTypeName(r.type)),
-                            subtitle: Text('\${r.date} \${r.remark ?? ''}'),
+                            subtitle: Text('\${r.date} \${r.remark ?? ""}'),
                             trailing: Text(
-                              '\${r.type == 'total' ? '+' : '-'}\${FormatUtils.formatMoney(r.amount)}',
+                              '\$prefix\${FormatUtils.formatMoney(r.amount)}',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: r.type == 'total' ? Colors.green : Colors.red,
+                                color: isIncome ? Colors.green : Colors.red,
                               ),
                             ),
                             onTap: () => Navigator.pushNamed(context, '/salary/form', arguments: r),
