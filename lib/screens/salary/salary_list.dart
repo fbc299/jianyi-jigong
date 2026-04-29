@@ -10,11 +10,11 @@ class SalaryListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('工资管理'),
+        title: const Text('\u5de5\u8d44\u7ba1\u7406'),
         actions: [
           TextButton.icon(
             icon: const Icon(Icons.table_chart),
-            label: const Text('明细表'),
+            label: const Text('\u660e\u7ec6\u8868'),
             onPressed: () {},
           ),
         ],
@@ -23,7 +23,6 @@ class SalaryListScreen extends StatelessWidget {
         builder: (context, provider, _) {
           return Column(
             children: [
-              // Pending settlement card
               Card(
                 margin: const EdgeInsets.all(12),
                 color: Theme.of(context).colorScheme.primaryContainer,
@@ -31,7 +30,7 @@ class SalaryListScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
                   child: Column(
                     children: [
-                      const Text('💰 待结算', style: TextStyle(fontSize: 14)),
+                      const Text('\ud83d\udcb0 \u5f85\u7ed3\u7b97', style: TextStyle(fontSize: 14)),
                       const SizedBox(height: 8),
                       Text(
                         FormatUtils.formatMoney(provider.pendingSettle),
@@ -45,49 +44,45 @@ class SalaryListScreen extends StatelessWidget {
                   ),
                 ),
               ),
-
-              // Action buttons
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Row(
                   children: [
-                    Expanded(child: _buildActionButton(context, '记工资', Icons.add_circle, Colors.blue, 'total')),
+                    Expanded(child: _buildActionButton(context, '\u8bb0\u5de5\u8d44', Icons.add_circle, Colors.blue, 'total')),
                     const SizedBox(width: 8),
-                    Expanded(child: _buildActionButton(context, '记借支', Icons.money_off, Colors.orange, 'advance')),
+                    Expanded(child: _buildActionButton(context, '\u8bb0\u501f\u652f', Icons.money_off, Colors.orange, 'advance')),
                     const SizedBox(width: 8),
-                    Expanded(child: _buildActionButton(context, '记结算', Icons.check_circle, Colors.green, 'settle')),
+                    Expanded(child: _buildActionButton(context, '\u8bb0\u7ed3\u7b97', Icons.check_circle, Colors.green, 'settle')),
                   ],
                 ),
               ),
               const SizedBox(height: 8),
-
-              // Records list
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Row(
                   children: [
-                    const Text('📋 最近记录', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                    const Text('\ud83d\udccb \u6700\u8fd1\u8bb0\u5f55', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                     const Spacer(),
-                    Text('${provider.records.length}条', style: const TextStyle(color: Colors.grey)),
+                    Text('\${provider.records.length}\u6761', style: const TextStyle(color: Colors.grey)),
                   ],
                 ),
               ),
               Expanded(
                 child: provider.records.isEmpty
-                    ? const Center(child: Text('暂无记录', style: TextStyle(color: Colors.grey)))
+                    ? const Center(child: Text('\u6682\u65e0\u8bb0\u5f55', style: TextStyle(color: Colors.grey)))
                     : ListView.builder(
                         itemCount: provider.records.length,
                         itemBuilder: (context, index) {
                           final r = provider.records[index];
                           return ListTile(
                             leading: CircleAvatar(
-                              backgroundColor: _getTypeColor(r.type).withOpacity(0.1),
+                              backgroundColor: _getTypeColor(r.type).withValues(alpha: 0.1),
                               child: Icon(_getTypeIcon(r.type), color: _getTypeColor(r.type), size: 20),
                             ),
                             title: Text(_getTypeName(r.type)),
-                            subtitle: Text('${r.date} ${r.remark ?? ''}'),
+                            subtitle: Text('\${r.date} \${r.remark ?? ''}'),
                             trailing: Text(
-                              '${r.type == 'total' ? '+' : '-'}${FormatUtils.formatMoney(r.amount)}',
+                              '\${r.type == 'total' ? '+' : '-'}\${FormatUtils.formatMoney(r.amount)}',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: r.type == 'total' ? Colors.green : Colors.red,
@@ -105,7 +100,7 @@ class SalaryListScreen extends StatelessWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Navigator.pushNamed(context, '/salary/form'),
         icon: const Icon(Icons.add),
-        label: const Text('记工资'),
+        label: const Text('\u8bb0\u5de5\u8d44'),
       ),
     );
   }
@@ -140,10 +135,10 @@ class SalaryListScreen extends StatelessWidget {
 
   String _getTypeName(String type) {
     switch (type) {
-      case 'total': return '总工资';
-      case 'paid': return '已发放';
-      case 'advance': return '借支/预支';
-      case 'settle': return '结算';
+      case 'total': return '\u603b\u5de5\u8d44';
+      case 'paid': return '\u5df2\u53d1\u653e';
+      case 'advance': return '\u501f\u652f/\u9884\u652f';
+      case 'settle': return '\u7ed3\u7b97';
       default: return type;
     }
   }
