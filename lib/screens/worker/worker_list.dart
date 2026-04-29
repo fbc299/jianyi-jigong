@@ -48,7 +48,7 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
                 margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 child: ListTile(
                   leading: CircleAvatar(
-                    backgroundColor: Colors.blue.withValues(alpha: 0.1),
+                    backgroundColor: Colors.blue.withOpacity(0.1),
                     child: const Icon(Icons.person, color: Colors.blue),
                   ),
                   title: Text(w.name, style: const TextStyle(fontWeight: FontWeight.bold)),
