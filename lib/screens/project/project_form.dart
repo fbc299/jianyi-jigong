@@ -43,6 +43,11 @@ class _ProjectFormScreenState extends State<ProjectFormScreen> {
     super.dispose();
   }
 
+  String _fmtDate(DateTime? d) {
+    if (d == null) return '\u672a\u8bbe\u7f6e';
+    return '\\${d.year}-\\${d.month.toString().padLeft(2, "0")}-\\${d.day.toString().padLeft(2, "0")}';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,7 +73,7 @@ class _ProjectFormScreenState extends State<ProjectFormScreen> {
                 Expanded(
                   child: ListTile(
                     title: const Text('\u5f00\u59cb\u65e5\u671f'),
-                    subtitle: Text(_startDate != null ? '\${_startDate!.year}-\${_startDate!.month.toString().padLeft(2, '0')}-\${_startDate!.day.toString().padLeft(2, '0')}' : '\u672a\u8bbe\u7f6e'),
+                    subtitle: Text(_fmtDate(_startDate)),
                     leading: const Icon(Icons.calendar_today),
                     onTap: () async {
                       final picked = await showDatePicker(context: context, initialDate: _startDate ?? DateTime.now(), firstDate: DateTime(2020), lastDate: DateTime(2030));
@@ -79,7 +84,7 @@ class _ProjectFormScreenState extends State<ProjectFormScreen> {
                 Expanded(
                   child: ListTile(
                     title: const Text('\u7ed3\u675f\u65e5\u671f'),
-                    subtitle: Text(_endDate != null ? '\${_endDate!.year}-\${_endDate!.month.toString().padLeft(2, '0')}-\${_endDate!.day.toString().padLeft(2, '0')}' : '\u672a\u8bbe\u7f6e'),
+                    subtitle: Text(_fmtDate(_endDate)),
                     leading: const Icon(Icons.calendar_today),
                     onTap: () async {
                       final picked = await showDatePicker(context: context, initialDate: _endDate ?? DateTime.now(), firstDate: DateTime(2020), lastDate: DateTime(2030));
